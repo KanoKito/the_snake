@@ -49,7 +49,7 @@ clock = pygame.time.Clock()
 class GameObject:
     """Базовый класс игровых объектов."""
 
-    def __init__(self, body_color):
+    def __init__(self, body_color=SNAKE_COLOR):
         self.position = ((SCREEN_WIDTH // 2), (SCREEN_HEIGHT // 2))
         self.body_color = body_color
 
@@ -140,7 +140,7 @@ class Snake(GameObject):
 class Apple(GameObject):
     """Класс игровых объектов Яблоко."""
 
-    def __init__(self, busy, body_color: tuple = APPLE_COLOR) -> None:
+    def __init__(self, busy=list(), body_color: tuple = APPLE_COLOR) -> None:
         super().__init__(body_color)
         self.randomize_position(busy)
 
