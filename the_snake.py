@@ -127,13 +127,6 @@ class Snake(GameObject):
         """
         return self.positions[0]
 
-    def check_collision(self):
-        """Проверяем столкновение."""
-        if self.get_head_position() in self.positions[4:]:
-            return True
-        else:
-            return False
-
     def reset(self) -> None:
         """Cбрасываем змейку в начальное состояние после столкновения с
         собой.
@@ -147,7 +140,7 @@ class Snake(GameObject):
 class Apple(GameObject):
     """Класс игровых объектов Яблоко."""
 
-    def __init__(self, busy=list(), body_color: tuple = APPLE_COLOR) -> None:
+    def __init__(self, busy=list(), body_color=None) -> None:
         super().__init__(body_color)
         self.randomize_position(busy)
 
@@ -185,7 +178,7 @@ def draw(*args):
 def main():
     """Запуск игры"""
     snake = Snake()
-    apple = Apple(snake.positions)
+    apple = Apple(snake.positions, APPLE_COLOR)
     poison_apple = Apple(snake.positions, POISON_COLOR)
     rock = Apple(snake.positions, ROCK_COLOR)
     running = True
@@ -215,7 +208,7 @@ def main():
             screen.fill(BOARD_BACKGROUND_COLOR)
 
         # Змейка укусила себя
-        if snake.check_collision():
+        if snake.get_head_position() in snake.positions[4:]:
             snake.reset()
             screen.fill(BOARD_BACKGROUND_COLOR)
 
