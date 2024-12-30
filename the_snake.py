@@ -56,7 +56,7 @@ class GameObject:
     def draw(self):
         """Пустая заготовка метода для отрисовки объекта на игровом поле."""
 
-    def randomize_position(self, positions):
+    def randomize_position(self, positions) -> None:
         """Устанавливаем случайное положение объекта."""
         while True:
             self.position = (
@@ -84,7 +84,7 @@ class Snake(GameObject):
             self.direction = self.next_direction
             self.next_direction = None
 
-    def move(self):
+    def move(self) -> None:
         """Обновляем позицию змейки  добавляя новую голову в начало списка
         positions и удаляя последний элемент, если
         длина змейки не увеличилась.
@@ -121,7 +121,7 @@ class Snake(GameObject):
             last_rect = pygame.Rect(self.last, (GRID_SIZE, GRID_SIZE))
             pygame.draw.rect(screen, BOARD_BACKGROUND_COLOR, last_rect)
 
-    def get_head_position(self):
+    def get_head_position(self) -> tuple:
         """Возвращаем позицию головы змейки - первый элемент в списке
         positions.
         """
@@ -131,9 +131,10 @@ class Snake(GameObject):
         """Проверяем столкновение."""
         if self.get_head_position() in self.positions[4:]:
             return True
-        return False
+        else:
+            return False
 
-    def reset(self):
+    def reset(self) -> None:
         """Cбрасываем змейку в начальное состояние после столкновения с
         собой.
         """
@@ -152,34 +153,6 @@ class Apple(GameObject):
 
     def draw(self):
         """Рисуем яблоко"""
-        rect = pygame.Rect(self.position, (GRID_SIZE, GRID_SIZE))
-        pygame.draw.rect(screen, self.body_color, rect)
-        pygame.draw.rect(screen, BORDER_COLOR, rect, 1)
-
-
-class PoisonApple(GameObject):
-    """Класс игровых объектов Отравленное Яблоко."""
-
-    def __init__(self, busy=list(), body_color: tuple = APPLE_COLOR) -> None:
-        super().__init__(body_color)
-        self.randomize_position(busy)
-
-    def draw(self):
-        """Рисуем отравленное яблоко"""
-        rect = pygame.Rect(self.position, (GRID_SIZE, GRID_SIZE))
-        pygame.draw.rect(screen, self.body_color, rect)
-        pygame.draw.rect(screen, POISON_COLOR, rect, 3)
-
-
-class Rock(GameObject):
-    """Класс игровых объектов Камень."""
-
-    def __init__(self, busy=list(), body_color: tuple = ROCK_COLOR) -> None:
-        super().__init__(body_color)
-        self.randomize_position(busy)
-
-    def draw(self):
-        """Рисуем камень"""
         rect = pygame.Rect(self.position, (GRID_SIZE, GRID_SIZE))
         pygame.draw.rect(screen, self.body_color, rect)
         pygame.draw.rect(screen, BORDER_COLOR, rect, 1)
@@ -213,8 +186,8 @@ def main():
     """Запуск игры"""
     snake = Snake()
     apple = Apple(snake.positions)
-    poison_apple = PoisonApple(snake.positions)
-    rock = Rock(snake.positions)
+    poison_apple = Apple(snake.positions, POISON_COLOR)
+    rock = Apple(snake.positions, ROCK_COLOR)
     running = True
 
     while running:
