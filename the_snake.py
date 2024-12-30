@@ -23,14 +23,8 @@ BORDER_COLOR = (93, 216, 228)
 # Цвет яблока
 APPLE_COLOR = (255, 0, 0)
 
-# Цвет  отравленного яблока
-POISON_COLOR = (0, 0, 255)
-
 # Цвет змейки
 SNAKE_COLOR = (0, 255, 0)
-
-# Цвет камня
-ROCK_COLOR = (125, 125, 125)
 
 # Скорость движения змейки:
 SPEED = 20
@@ -178,34 +172,20 @@ def draw(*args):
 def main():
     """Запуск игры"""
     snake = Snake()
-    apple = Apple(snake.positions, APPLE_COLOR)
-    poison_apple = Apple(snake.positions, POISON_COLOR)
-    rock = Apple(snake.positions, ROCK_COLOR)
+    apple = Apple(snake.positions)
     running = True
 
     while running:
         clock.tick(SPEED)
         handle_keys(snake)
         clock.tick(SPEED)
-        draw(apple, poison_apple, rock, snake)
+        draw(apple, snake)
         snake.move()
 
         # Змейка съела яблоко
         if apple.position == snake.get_head_position():
             snake.length += 1
             apple.randomize_position(snake.positions)
-
-        # Змейка съела плохое яблоко
-        if poison_apple.position == snake.get_head_position():
-            snake.length = max(1, snake.length - 1)
-            poison_apple.randomize_position(snake.positions)
-            screen.fill(BOARD_BACKGROUND_COLOR)
-
-        # Змейка врезалась в камень
-        if rock.position == snake.get_head_position():
-            snake.reset()
-            rock.randomize_position(snake.positions)
-            screen.fill(BOARD_BACKGROUND_COLOR)
 
         # Змейка укусила себя
         if snake.get_head_position() in snake.positions[4:]:
