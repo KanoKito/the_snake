@@ -22,17 +22,23 @@ BORDER_COLOR = (93, 216, 228)
 # Цвет яблока
 APPLE_COLOR = (255, 0, 0)
 
+# Цвет  отравленного яблока
+POISON_COLOR = (0, 0, 255)
+
 # Цвет змейки
 SNAKE_COLOR = (0, 255, 0)
+
+# Цвет камня
+ROCK_COLOR = (125, 125, 125)
 
 # Скорость движения змейки:
 SPEED = 20
 
+# Инициализация PyGame.
+pygame.init()
+
 # Настройка игрового окна:
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0, 32)
-
-# Заголовок окна игрового поля:
-pygame.display.set_caption('Змейка')
 
 # Настройка времени:
 clock = pygame.time.Clock()
@@ -78,8 +84,8 @@ class Snake(GameObject):
             self.next_direction = None
 
     def move(self) -> None:
-        """Обновляем позицию змейки (координаты каждой секции), добавляя новую
-        голову в начало списка positions и удаляя последний элемент, если
+        """Обновляем позицию змейки  добавляя новую голову в начало списка
+        positions и удаляя последний элемент, если
         длина змейки не увеличилась.
         """
         self.position = (
@@ -93,7 +99,6 @@ class Snake(GameObject):
             self.last = self.positions.pop()
         elif self.length < past_length:
             self.last = self.positions.pop()
-            self.draw(self.position)
             self.last = self.positions.pop()
         else:
             self.last = None
@@ -151,6 +156,34 @@ class Apple(GameObject):
         pygame.draw.rect(screen, BORDER_COLOR, rect, 1)
 
 
+class PoisonApple(GameObject):
+    """Класс игровых объектов Отравленное Яблоко."""
+
+    def __init__(self, busy=list(), body_color: tuple = APPLE_COLOR) -> None:
+        super().__init__(body_color)
+        self.randomize_position(busy)
+
+    def draw(self):
+        """Рисуем отравленное яблоко"""
+        rect = pygame.Rect(self.position, (GRID_SIZE, GRID_SIZE))
+        pygame.draw.rect(screen, self.body_color, rect)
+        pygame.draw.rect(screen, POISON_COLOR, rect, 3)
+
+
+class Rock(GameObject):
+    """Класс игровых объектов Камень."""
+
+    def __init__(self, busy=list(), body_color: tuple = ROCK_COLOR) -> None:
+        super().__init__(body_color)
+        self.randomize_position(busy)
+
+    def draw(self):
+        """Рисуем камень"""
+        rect = pygame.Rect(self.position, (GRID_SIZE, GRID_SIZE))
+        pygame.draw.rect(screen, self.body_color, rect)
+        pygame.draw.rect(screen, BORDER_COLOR, rect, 1)
+
+
 def handle_keys(game_object):
     """Функция обработки действий пользователя."""
     for event in pygame.event.get():
@@ -169,31 +202,51 @@ def handle_keys(game_object):
             game_object.update_direction()
 
 
+def draw(*args):
+    """Отрисовка объектов"""
+    for game_object in args:
+        game_object.draw()
+
+
 def main():
-    """Инициализация PyGame."""
-    pygame.init()
+    """Запуск игры"""
     snake = Snake()
     apple = Apple(snake.positions)
+    poison_apple = PoisonApple(snake.positions)
+    rock = Rock(snake.positions)
     running = True
-    # Тут нужно создать экземпляры классов.
 
     while running:
         clock.tick(SPEED)
-        pygame.display.set_caption(f'Змейка Счет: {snake.length - 1}')
         handle_keys(snake)
         clock.tick(SPEED)
-        apple.draw()
-        snake.draw()
+        draw(apple, poison_apple, rock, snake)
         snake.move()
-        pygame.display.update()
 
-        # Тут опишите основную логику игры.
+        # Змейка съела яблоко
         if apple.position == snake.get_head_position():
             snake.length += 1
             apple.randomize_position(snake.positions)
+
+        # Змейка съела плохое яблоко
+        if poison_apple.position == snake.get_head_position():
+            snake.length = max(1, snake.length - 1)
+            poison_apple.randomize_position(snake.positions)
+            screen.fill(BOARD_BACKGROUND_COLOR)
+
+        # Змейка врезалась в камень
+        if rock.position == snake.get_head_position():
+            snake.reset()
+            rock.randomize_position(snake.positions)
+            screen.fill(BOARD_BACKGROUND_COLOR)
+
+        # Змейка укусила себя
         if snake.check_collision():
             snake.reset()
             screen.fill(BOARD_BACKGROUND_COLOR)
+
+        pygame.display.set_caption(f'Змейка Счет: {snake.length - 1}')
+        pygame.display.update()
 
 
 if __name__ == '__main__':
