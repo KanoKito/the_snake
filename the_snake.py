@@ -26,6 +26,12 @@ APPLE_COLOR = (255, 0, 0)
 # Цвет змейки
 SNAKE_COLOR = (0, 255, 0)
 
+# Цвет  отравленного яблока
+POISON_COLOR = (0, 0, 255)
+
+# Цвет камня
+ROCK_COLOR = (125, 125, 125)
+
 # Скорость движения змейки:
 SPEED = 20
 
@@ -43,7 +49,7 @@ clock = pygame.time.Clock()
 class GameObject:
     """Базовый класс игровых объектов."""
 
-    def __init__(self, body_color=SNAKE_COLOR):
+    def __init__(self, body_color=None):
         self.position = ((SCREEN_WIDTH // 2), (SCREEN_HEIGHT // 2))
         self.body_color = body_color
 
@@ -52,6 +58,8 @@ class GameObject:
 
     def randomize_position(self, positions) -> None:
         """Устанавливаем случайное положение объекта."""
+        if positions is None:
+            positions = list()
         while True:
             self.position = (
                 randint(0, GRID_WIDTH - 1) * GRID_SIZE,
@@ -64,7 +72,7 @@ class GameObject:
 class Snake(GameObject):
     """Класс игровых объектов Змейка."""
 
-    def __init__(self, body_color: tuple = SNAKE_COLOR) -> None:
+    def __init__(self, body_color=None) -> None:
         super().__init__(body_color)
 
         self.positions = [self.position]
@@ -134,7 +142,7 @@ class Snake(GameObject):
 class Apple(GameObject):
     """Класс игровых объектов Яблоко."""
 
-    def __init__(self, busy=list(), body_color: tuple = APPLE_COLOR) -> None:
+    def __init__(self, busy=None, body_color=None) -> None:
         super().__init__(body_color)
         self.randomize_position(busy)
 
@@ -171,15 +179,17 @@ def draw(*args):
 
 def main():
     """Запуск игры"""
-    snake = Snake()
-    apple = Apple(snake.positions)
+    snake = Snake(SNAKE_COLOR)
+    apple = Apple(snake.positions, APPLE_COLOR)
+    poison_apple = Apple(snake.positions, POISON_COLOR)
+    rock = Apple(snake.positions, ROCK_COLOR)
     running = True
 
     while running:
         clock.tick(SPEED)
         handle_keys(snake)
         clock.tick(SPEED)
-        draw(apple, snake)
+        draw(apple, snake, rock, poison_apple)
         snake.move()
 
         # Змейка съела яблоко
@@ -190,6 +200,18 @@ def main():
         # Змейка укусила себя
         if snake.get_head_position() in snake.positions[4:]:
             snake.reset()
+            screen.fill(BOARD_BACKGROUND_COLOR)
+
+        # Змейка съела плохое яблоко
+        if poison_apple.position == snake.get_head_position():
+            snake.length = max(1, snake.length - 1)
+            poison_apple.randomize_position(snake.positions)
+            screen.fill(BOARD_BACKGROUND_COLOR)
+
+        # Змейка врезалась в камень
+        if rock.position == snake.get_head_position():
+            snake.reset()
+            rock.randomize_position(snake.positions)
             screen.fill(BOARD_BACKGROUND_COLOR)
 
         pygame.display.set_caption(f'Змейка Счет: {snake.length - 1}')
