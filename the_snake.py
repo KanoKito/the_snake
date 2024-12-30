@@ -1,4 +1,5 @@
 from random import randint
+
 import pygame
 
 # Константы для размеров поля и сетки:
@@ -48,14 +49,14 @@ clock = pygame.time.Clock()
 class GameObject:
     """Базовый класс игровых объектов."""
 
-    def __init__(self, body_color=None) -> None:
+    def __init__(self, body_color=None):
         self.position = ((SCREEN_WIDTH // 2), (SCREEN_HEIGHT // 2))
         self.body_color = body_color
 
     def draw(self):
         """Пустая заготовка метода для отрисовки объекта на игровом поле."""
 
-    def randomize_position(self, positions) -> None:
+    def randomize_position(self, positions):
         """Устанавливаем случайное положение объекта."""
         while True:
             self.position = (
@@ -83,7 +84,7 @@ class Snake(GameObject):
             self.direction = self.next_direction
             self.next_direction = None
 
-    def move(self) -> None:
+    def move(self):
         """Обновляем позицию змейки  добавляя новую голову в начало списка
         positions и удаляя последний элемент, если
         длина змейки не увеличилась.
@@ -120,19 +121,19 @@ class Snake(GameObject):
             last_rect = pygame.Rect(self.last, (GRID_SIZE, GRID_SIZE))
             pygame.draw.rect(screen, BOARD_BACKGROUND_COLOR, last_rect)
 
-    def get_head_position(self) -> tuple:
+    def get_head_position(self):
         """Возвращаем позицию головы змейки - первый элемент в списке
         positions.
         """
         return self.positions[0]
 
-    def check_collision(self) -> bool:
+    def check_collision(self):
         """Проверяем столкновение."""
         if self.get_head_position() in self.positions[4:]:
             return True
         return False
 
-    def reset(self) -> None:
+    def reset(self):
         """Cбрасываем змейку в начальное состояние после столкновения с
         собой.
         """
