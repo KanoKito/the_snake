@@ -102,6 +102,7 @@ class Snake(GameObject):
             self.last = self.positions.pop()
         elif self.length < past_length:
             self.last = self.positions.pop()
+            self.draw()
             self.last = self.positions.pop()
         else:
             self.last = None
@@ -206,7 +207,6 @@ def main():
         if poison_apple.position == snake.get_head_position():
             snake.length = max(1, snake.length - 1)
             poison_apple.randomize_position(snake.positions)
-            screen.fill(BOARD_BACKGROUND_COLOR)
 
         # Змейка врезалась в камень
         if rock.position == snake.get_head_position():
